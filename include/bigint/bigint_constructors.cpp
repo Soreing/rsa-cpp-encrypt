@@ -250,6 +250,26 @@ BigInt<N>::BigInt(const unsigned long long val)
 	*(unsigned long long*)bytes = val;
 }
 
+// Constructs a Big Integer of N bytes using a byte array representing an integer
+// The byte array is copied into the structure, then the rest of the space is filled with 0s
+// If the data represented a bigEndian data, the bytes are reversed
+template <unsigned int N>
+BigInt<N>::BigInt(const cstr data, int len, int bigEndian)
+{
+	memcpy(bytes, data, len);
+	memset(bytes+len, 0, N-len);
+
+	if(bigEndian)
+	{	unsigned char temp;
+		for(int i=0; i<len/2; i++)
+		{	temp = bytes[i];
+			bytes[i] = bytes[len-i-1];
+			bytes[len-i-1] = temp;
+		}
+	}
+}
+
+
 // Constructs a Big Integer of N bytes using the value of another Big Integer of the same size
 // The bytes of the other Big Integer are copied into the array of this object.
 template <unsigned int N>

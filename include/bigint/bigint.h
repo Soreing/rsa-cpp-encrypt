@@ -73,6 +73,8 @@ public:
 	BigInt<N>(const cstr num);
 	BigInt<N>(const void* mem);
 	BigInt<N>(const unsigned long long val);
+	BigInt<N>(const cstr data, int len, int endian);
+
 	BigInt<N>(const BigInt<N> &other);
 	BigInt<N>& operator=(const BigInt<N> &other);
 
