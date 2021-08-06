@@ -1,4 +1,5 @@
 #include <rsa-crypt/ANS1.h>
+#include <iostream>
 
 static const char b64[64] =
 {	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -30,7 +31,7 @@ static const short v64[256] =
 };
 
 // Writes a byte stream to a buffer in base64 format
-char* writeBase64(const char* buffer, size_t bytes, char* string, size_t size)
+int writeBase64(const char* buffer, size_t bytes, char* string, size_t size)
 {
 	int bitCount = 0;
 	int bitBox   = 0;
@@ -40,7 +41,7 @@ char* writeBase64(const char* buffer, size_t bytes, char* string, size_t size)
 	for (size_t i = 0; i < bytes; i++)
 	{	
 		bitBox <<= 8;
-		bitBox |= buffer[i];
+		*(char*)&bitBox |= buffer[i];
 		shift += 2;
 
 		string[r++] = b64[(bitBox >> shift) & 0x3F];
@@ -61,14 +62,14 @@ char* writeBase64(const char* buffer, size_t bytes, char* string, size_t size)
 	}
 
 	string[(bytes+2)/3*4] = 0;
-	return string;
+	return (bytes+2)/3*4;
 }
 
 // Reads a base64 format value into a buffer in bytes
-char* readBase64(char* buffer, size_t size, const char* value, size_t digits)
+int readBase64(char* buffer, size_t size, const char* value, size_t digits)
 {
 	if (size < (digits * 4 / 3))
-		return buffer;
+		return 0;
 
 	for (size_t i = 0, r = 0; i < digits; i += 4, r += 3)
 	{	buffer[r + 0] = (v64[value[i + 0]] << 2) | (v64[value[i + 1]] >> 4);
@@ -76,10 +77,10 @@ char* readBase64(char* buffer, size_t size, const char* value, size_t digits)
 		buffer[r + 2] = (v64[value[i + 2]] << 6) | (v64[value[i + 3]] >> 0);
 	}
 
-	return buffer;
+	return (digits * 4 / 3);
 }
 
-// Gets an integer from an ANS1 encoded stream
+// Gets an integer from an ASN1 encoded stream
 int getInt(const char* buffer, size_t size, char* &intPtr, size_t &bytes)
 {
     bytes = 0;
@@ -104,50 +105,57 @@ int getInt(const char* buffer, size_t size, char* &intPtr, size_t &bytes)
             intIndex = 2;
         }
 
+		if(buffer[intIndex]==0 && dataBytes>1)
+		{	intIndex++;
+			dataBytes--;
+		}
+
         intPtr = (char*)buffer+intIndex;
         bytes = dataBytes;
     }
-
+	
     return bytes + intIndex;
 }
 
-// Writes an integer in ANS1 format to a byte array
-int putInt(const char* val, size_t bytes, char* buffer, size_t size, bool bigEndian)
+// Puts an integer into a byte array, ASN1 encoded
+int putInt(const char* src, size_t sSz, char* dst, size_t dSz, bool bigE)
 {
-    buffer[0] = 2;
-    int intIdx = 0;
+	// Copy Integer data into the destination
+	if(!bigE)
+	{	for(int s=0, d=dSz-1; s < (int)sSz; s++, d--)
+		{	dst[d] = src[s];
+		}
+	}
+	if(bigE)
+	{	for(int s=sSz-1, d=dSz-1; s >= 0; s--, d--)
+		{	dst[d] = src[s];
+		}
+	}
 
-    if(bytes < 128)
-    {   buffer[1] = (char)bytes;
-        intIdx = 2;
-    }
-    else
-    {   size_t bytesCpy = bytes;
-        int sizeCount = 0;
+	// Assert that integer starts with positive octet
+	int bytes = sSz;
+	if(dst[dSz-sSz] < 0)
+	{	dst[dSz-sSz-1] = 0;
+		bytes++;
+	}
 
-        while(bytesCpy > 0)
-        {
-            *(long long*)(buffer+2) <<= 8;
-            buffer[2] = bytesCpy & 0xFF;
-            bytesCpy >>= 8;
-            sizeCount++;
-        }
+	// Paste size into the buffer
+	int sSize = 0;
+	for(int bCopy=bytes; bCopy>0; bCopy>>=8)
+	{	dst[dSz-bytes-1] = bCopy &0xFF;
+		bytes++;
+		sSize++;
+	}
 
-        buffer[1] = sizeCount | 0x80;
-        intIdx = 2 + sizeCount;
-    }
+	// Add size size if it's more than one byte
+	if(sSize>1 || dst[dSz-bytes]<0)
+	{	dst[dSz-bytes-1] = 0x80 + sSize;
+		bytes++;
+	}
 
-    if(!bigEndian)
-    {   for(int d=intIdx, s=bytes-1; s>=0; s--, d++)
-        {   buffer[d]= val[s];
-        }
-    }
-    else
-    {   for(int i=0; i<(int)bytes; i++)
-        {   buffer[i+intIdx] = val[i];
-        }
-    }
+	// Add Integer tag
+	dst[dSz-bytes-1] = 2;
+	bytes++;
 
-    return bytes + intIdx;
-    
+	return bytes;
 }

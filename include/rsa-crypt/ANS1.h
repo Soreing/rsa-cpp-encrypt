@@ -1,11 +1,11 @@
-#ifndef ANS1_H
-#define ANS1_H
+#ifndef ASN1_H
+#define ASN1_H
 
 // Writes a byte stream to a buffer in base64 format
-char* writeBase64(const char* buffer, size_t bytes, char* string, size_t size);
+int writeBase64(const char* buffer, size_t bytes, char* string, size_t size);
 
 // Reads a base64 format value into a buffer in bytes
-char* readBase64(char* buffer, size_t size, const char* value, size_t digits);
+int readBase64(char* buffer, size_t size, const char* value, size_t digits);
 
 // Gets an integer from an ANS1 encoded stream
 int getInt(const char* buffer, size_t size, char* &intPtr, size_t &bytes);

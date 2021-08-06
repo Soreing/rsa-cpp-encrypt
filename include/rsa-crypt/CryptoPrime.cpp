@@ -2,7 +2,7 @@
 #define PRIME_LIST_MAX 200
 
 // List of small primes for fast prime checking
-int primesList[] =
+static int primesList[] =
 {	2,    3,    5,    7,   11,   13,   17,   19,   23,   29,   31,   37,   41,   43,   47,   53,   59,   61,   67,   71,
 	179,  181,  191,  193,  197,  199,  211,  223,  227,  229,  233,  239,  241,  251,  257,  263,  269,  271,  277,  281,
 	283,  293,  307,  311,  313,  317,  331,  337,  347,  349,  353,  359,  367,  373,  379,  383,  389,  397,  401,  409,
@@ -92,10 +92,10 @@ bool isPrime(const BigInt<N> &prime, int precision = 50)
 template <unsigned int N>
 void genratePrime(BigInt<N> &prime, int precision = 50)
 {
-	prime = rand<128>();
+	prime = rand<N>();
 
 	((char*)&prime)[0]   |= 1;
-    ((char*)&prime)[127] |= 128;
+    ((char*)&prime)[N-1] |= 128;
 
 	for (bool pr = false; !pr; prime += 2)
 	{	if (isPrime(prime, precision))

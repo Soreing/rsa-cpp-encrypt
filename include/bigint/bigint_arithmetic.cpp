@@ -507,7 +507,7 @@ BigInt<N>&  BigInt<N>::operator-=(const BigInt<N> &right)
 // Z2(T1) and Z1 are shifted and added to the result (T2), which is then copied into
 // the left hand operand to simulate the *= operand.
 template <unsigned int N>
-void karatsuba(char* left, const char* right)
+static void karatsuba(char* left, const char* right)
 {
 	if (((BigInt<N>*)left)->isZero())
 		return;
@@ -570,7 +570,7 @@ void karatsuba(char* left, const char* right)
 // [3] The results from Step 2 are bit adjusted. a^2 was already calculated in the correct shift.
 //     ab is shifted (N/2*8) + 1 bits (+1 because of 2ab) and added to a^2 + b^2 
 template <unsigned int N>
-void square(char* num)
+static void square(char* num)
 {
 	char ab[N * 2];
 	
@@ -594,7 +594,7 @@ void square(char* num)
 // using built in multiplication once the operands are small enough (4 bytes).
 // This is used as an exit condition to the recursive Karatsuba function.
 template <>
-void karatsuba<4>(char* left, const char* right)
+static void karatsuba<4>(char* left, const char* right)
 {   *(unsigned long long*)left *= *(unsigned long*)right;
     return;
 }
@@ -603,7 +603,7 @@ void karatsuba<4>(char* left, const char* right)
 // using built in multiplication once the operands are small enough (4 bytes).
 // This is used as an exit condition to the recursive Square function.
 template <>
-void square<4>(char* num)
+static void square<4>(char* num)
 {
 	*(unsigned long long*)num *= *(unsigned long*)num;
 	return;
