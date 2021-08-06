@@ -1,12 +1,10 @@
 #include <rsa-crypt/RSAcipher.h>
-#include <rsa-crypt/ANS1.h>
 #include <ctime>
 
 
 void main()
 {
-	srand(time(NULL));
-
+	srand((unsigned int)time(NULL));
 	RSACipher rsa;
 	
 	/*rsa.importPubKey(
@@ -51,20 +49,13 @@ void main()
 		"UUE9Ou6MwYIZpyQ6sqISdMbKLovrxqU="
 		"\n-----END RSA PRIVATE KEY-----"
 	);
-
-	char bf1[2048];
-	//char bf2[2048];
-	rsa.exportPrvKey(bf1, 2048);
-	//rsa.exportPrvKey(bf2, 2048);
-	std::cout<< bf1 << "\n";
-	//std::cout<< bf2 << "\n";
 	
 	BigInt<256> message("123456");
 	BigInt<256> ciphertext = rsa.encrypt(message);
 	BigInt<256> plaintext  = rsa.decrypt(ciphertext);
 
-	std::cout<< message.toString(64) <<"\n";
-	//std::cout<< ciphertext.toString(64) <<"\n";
-	std::cout<< plaintext.toString(64) <<"\n";
+	std::cout<< message <<"\n";
+	std::cout<< ciphertext.toString(64) <<"\n";
+	std::cout<< plaintext <<"\n";
 
 }
