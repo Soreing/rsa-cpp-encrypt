@@ -2,7 +2,7 @@
 
 # Description
 
-rsa-cpp-encrypt is a simple textbook RSA library for C++. The library is capable of generating 2048 bit RSA key pairs, encrypting, decrypting and also exporting/importing keys in PKCS#1 format. The implementation uses [biging-x86cpp](https://github.com/Soreing/bigint-x86cpp/)
+rsa-cpp-encrypt is a simple textbook RSA library for C++. The library is capable of generating 2048 bit RSA key pairs, encrypting, decrypting and also exporting/importing keys in PKCS#1 format. The implementation uses [biging-x86cpp](https://github.com/Soreing/bigint-x86cpp/) and is only compatible with x86 architecture CPUs
 
 # Installation 
 Add the folders `bigint` and `rsa-crypt` from `/include` in your include path. If you want to compile the library from source, include `ASN1.cpp` and `RSACipher.cpp` from the `/src` folder. Alternatively, you can compile the source code to a static library and include it that way.
